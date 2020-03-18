@@ -1,6 +1,6 @@
 from typing import List
-
 import pandas as pd
+import datetime
 
 CONFIRMED_CASES_URL = f"https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data" \
                       f"/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv "
@@ -27,9 +27,14 @@ def poland_cases_by_date(day: int, month: int, year: int = 2020) -> int:
     :param month: Month to get the cases for as an integer indexed from 1
     :return: Number of cases on a given date as an integer
     """
-    
+    d=datetime.date(year,month,day)
+
+    result = confirmed_cases.loc[confirmed_cases["Country/Region"]=="Poland"][f"{d.month}/{d.day}/{d.year-2000}"].values[0]
+    return result
+    # poland=clean.loc[clean["Country/Region"]=='Poland']
+    # print(poland)
     # Your code goes here (remove pass)
-    pass
+
 
 
 def top5_countries_by_date(day: int, month: int, year: int = 2020) -> List[str]:
@@ -48,8 +53,12 @@ def top5_countries_by_date(day: int, month: int, year: int = 2020) -> List[str]:
     :return: A list of strings with the names of the coutires
     """
 
-    # Your code goes here (remove pass)
-    pass
+    d=datetime.date(year,month,day)
+
+    result = \
+    confirmed_cases.groupby(["Country/Region"])[d.strftime('%m/%d/%y').lstrip("0").replace(" 0", " ")].sum().groupby("Country/Region").cumsum().sort_values(ascending=False).head(5)
+    lista = result.index.to_list
+    return lista()
 
 
 def no_new_cases_count(day: int, month: int, year: int = 2020) -> int:
@@ -68,5 +77,14 @@ def no_new_cases_count(day: int, month: int, year: int = 2020) -> int:
     :return: Number of countries/regions where the count has not changed in a day
     """
     
-    # Your code goes here (remove pass)
-    pass
+    d=datetime.date(year,month,day)
+    yesterday=d- datetime.timedelta(days=1)
+    result = \
+    confirmed_cases.groupby(["Country/Region"])[f"{d.month}/{d.day}/{d.year-2000}"].sum().groupby("Country/Region").cumsum()
+    result_yesterday = \
+    confirmed_cases.groupby(["Country/Region"])[f"{yesterday.month}/{yesterday.day}/{yesterday.year-2000}"].sum().groupby("Country/Region").cumsum()
+
+    table= pd.DataFrame({'today': result.values, 'yesterday': result_yesterday.values})
+    wynik = table.loc[table["today"] == table["yesterday"]]
+
+    return len(wynik)
