@@ -56,7 +56,7 @@ def top5_countries_by_date(day: int, month: int, year: int = 2020) -> List[str]:
     d=datetime.date(year,month,day)
 
     result = \
-    confirmed_cases.groupby(["Country/Region"])[d.strftime('%m/%d/%y').lstrip("0").replace(" 0", " ")].sum().groupby("Country/Region").cumsum().sort_values(ascending=False).head(5)
+    confirmed_cases.groupby(["Country/Region"])[d.strftime('%m/%d/%y').lstrip("0").replace(" 0", " ").replace("/0", "/")].sum().groupby("Country/Region").cumsum().sort_values(ascending=False).head(5)
     lista = result.index.to_list
     return lista()
 
@@ -64,27 +64,27 @@ def top5_countries_by_date(day: int, month: int, year: int = 2020) -> List[str]:
 def no_new_cases_count(day: int, month: int, year: int = 2020) -> int:
     """
     Returns the number of countries/regions where the infection count in a given day was the same as the previous day.
-
     Ex.
     >>> no_new_cases_count(11, 2, 2020)
     35
     >>> no_new_cases_count(3, 3)
     57
-
     :param day: 4 digit integer representation of the year to get the cases for, defaults to 2020
     :param month: Day of month to get the countries for as an integer indexed from 1
     :param year: Month to get the countries for as an integer indexed from 1
     :return: Number of countries/regions where the count has not changed in a day
     """
-    
-    d=datetime.date(year,month,day)
-    yesterday=d- datetime.timedelta(days=1)
-    result = \
-    confirmed_cases.groupby(["Country/Region"])[f"{d.month}/{d.day}/{d.year-2000}"].sum().groupby("Country/Region").cumsum()
-    result_yesterday = \
-    confirmed_cases.groupby(["Country/Region"])[f"{yesterday.month}/{yesterday.day}/{yesterday.year-2000}"].sum().groupby("Country/Region").cumsum()
 
-    table= pd.DataFrame({'today': result.values, 'yesterday': result_yesterday.values})
+    d = datetime.date(year, month, day)
+    yesterday = d - datetime.timedelta(days=1)
+    result = \
+        confirmed_cases.groupby(["Country/Region"])[f"{d.month}/{d.day}/{d.year - 2000}"].sum().groupby(
+            "Country/Region").cumsum()
+    result_yesterday = \
+        confirmed_cases.groupby(["Country/Region"])[
+            f"{yesterday.month}/{yesterday.day}/{yesterday.year - 2000}"].sum().groupby("Country/Region").cumsum()
+
+    table = pd.DataFrame({'today': result.values, 'yesterday': result_yesterday.values})
     wynik = table.loc[table["today"] == table["yesterday"]]
 
     return len(wynik)
