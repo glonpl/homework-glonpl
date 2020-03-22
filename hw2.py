@@ -58,7 +58,7 @@ def countries_with_no_deaths_count(date: datetime.date) -> int:
             if to_check.loc[i][0]==to_check.loc[i][1]:
                 count += 1
 
-    print(count)
+    return count
     # # Your code goes here
     # pass
 
