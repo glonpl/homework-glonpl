@@ -39,28 +39,10 @@ def countries_with_no_deaths_count(date: datetime.date) -> int:
     :param date: Date object of the date to get the results for
     :return: Number of countries with no deaths but with active cases on a given date as an integer
     """
-    yesterday = format_date(date + datetime.timedelta(days=-1))
     today = format_date(date)
-    # print(yesterday)
-    # print(dfD.loc[dfD[yesterday] > 0].columns)
-    # print(dfD.loc[dfD[yesterday] > 0].axes)
-    # print(dfD.loc[dfD[yesterday] > 0].index)
-    # print(dfD.loc[16][1])  # [row][col]
-    # print(type(dfD.values[1]))
-    # print(int(dfD.get(yesterday)[1]))
-    to_check= dfD.get([yesterday,today])
-    count = 0
-    size_range=dfC.shape[0]
-    # print(size_range)
-    for i in range(0 , size_range):
-        if dfC.get(today).loc[i]!=0:
-            print( dfC.get(today).loc[i])
-            if to_check.loc[i][0]==to_check.loc[i][1]:
-                count += 1
 
-    return count
-    # # Your code goes here
-    # pass
+    dfRet= dfC[['Country/Region', today]].loc[dfD.loc[dfD[today]==0].index]
+    return dfRet.loc[dfRet[today]!=0].count()[1]
 
 
 def more_cured_than_deaths_indices(date: datetime.date) -> List[int]:
@@ -83,9 +65,4 @@ def more_cured_than_deaths_indices(date: datetime.date) -> List[int]:
     :param date: Date object of the date to get the results for
     :return: A List of integers containing indices of countries which had more cured cases than deaths on a given date
     """
-    print(dfD.loc[dfD[format_date(date + datetime.timedelta(days=-1))] > 0].index)
-    # Your code goes here
-    pass
-
-
-countries_with_no_deaths_count(datetime.date(2020, 3, 15))
+    return list((dfR[format_date(date)] > dfD[format_date(date)]).loc[(dfR[format_date(date)]>dfD[format_date(date)])==True].index)

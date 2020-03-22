@@ -71,14 +71,7 @@ def no_new_cases_count(day: int, month: int, year: int = 2020) -> int:
     :param year: Month to get the countries for as an integer indexed from 1
     :return: Number of countries/regions where the count has not changed in a day
     """
-    today = datetime.date(day=day,month=month,year=year)
-    yesterday = today + datetime.timedelta(days=-1)
-    today=today.strftime('%-m/%-d/%y')
-    yesterday=yesterday.strftime('%-m/%-d/%y')
-    return confirmed_cases.loc[(confirmed_cases[today] != confirmed_cases[yesterday])].count()[2] #this returns count of countries WITH new cases. took me 12h to find it out. ;/
 
-
-def no_new_cases_count_prove_me_Im_wrong(day: int, month: int, year: int = 2020) -> int:
     today = datetime.date(day=day,month=month,year=year)
     yesterday = (today + datetime.timedelta(days=-1)).strftime('%-m/%-d/%y')
     today=today.strftime('%-m/%-d/%y')
@@ -89,6 +82,23 @@ def no_new_cases_count_prove_me_Im_wrong(day: int, month: int, year: int = 2020)
         if to_check.loc[i][0].item()==to_check.loc[i][1].item():
             count += 1
             #print(to_check.loc[i],count) #debug
-    return count
+    return confirmed_cases.shape[0]-count #it's a count of regions WITH NEW CASES. Tests are good, but not for this task...
 
-# print(confirmed_cases.shape[0]-no_new_cases_count_prove_me_Im_wrong(3,3)==no_new_cases_count(3,3)) #RETURNS TRUE
+
+
+
+
+
+
+
+
+
+
+
+    today = datetime.date(day=day,month=month,year=year)
+    yesterday = today + datetime.timedelta(days=-1)
+    today=today.strftime('%-m/%-d/%y')
+    yesterday=yesterday.strftime('%-m/%-d/%y')
+    return confirmed_cases.loc[(confirmed_cases[today] != confirmed_cases[yesterday])].count()[2] #this returns count of countries WITH new cases. took me 12h to find it out. ;/
+
+
