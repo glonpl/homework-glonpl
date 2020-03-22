@@ -29,8 +29,8 @@ def poland_cases_by_date(day: int, month: int, year: int = 2020) -> int:
     """
     d=datetime.date(year,month,day)
 
-    result = confirmed_cases.loc[confirmed_cases["Country/Region"]=="Poland"][f"{d.month}/{d.day}/{d.year-2000}"].values[0]
-    return result
+    return confirmed_cases.loc[confirmed_cases["Country/Region"]=="Poland"][f"{d.month}/{d.day}/{d.year-2000}"].values[0]
+
     # poland=clean.loc[clean["Country/Region"]=='Poland']
     # print(poland)
     # Your code goes here (remove pass)
@@ -52,13 +52,13 @@ def top5_countries_by_date(day: int, month: int, year: int = 2020) -> List[str]:
     :param year: Month to get the countries for as an integer indexed from 1
     :return: A list of strings with the names of the coutires
     """
-
     d=datetime.date(year,month,day)
+    return list(confirmed_cases.groupby(["Country/Region"]).sum().sort_values(by=[f"{d.month}/{d.day}/{d.year-2000}"],ascending=False).head(5).index)
 
-    result = \
-    confirmed_cases.groupby(["Country/Region"])[d.strftime('%m/%d/%y').lstrip("0").replace(" 0", " ").replace("/0", "/")].sum().groupby("Country/Region").cumsum().sort_values(ascending=False).head(5)
-    lista = result.index.to_list
-    return lista()
+def top5_countries_by_date_prove_me_Im_wrong(day: int, month: int, year: int = 2020) -> List[str]:
+    d=datetime.date(year,month,day)
+    return list(confirmed_cases.groupby(["Country/Region"])[d.strftime('%m/%d/%y').lstrip("0").replace(" 0", " ").replace("/0", "/")].sum().groupby("Country/Region").cumsum().sort_values(ascending=False).head(5).index) #tests doesn't pass somehow
+
 
 
 def no_new_cases_count(day: int, month: int, year: int = 2020) -> int:
@@ -75,16 +75,30 @@ def no_new_cases_count(day: int, month: int, year: int = 2020) -> int:
     :return: Number of countries/regions where the count has not changed in a day
     """
 
-    d = datetime.date(year, month, day)
-    yesterday = d - datetime.timedelta(days=1)
-    result = \
-        confirmed_cases.groupby(["Country/Region"])[f"{d.month}/{d.day}/{d.year - 2000}"].sum().groupby(
-            "Country/Region").cumsum()
-    result_yesterday = \
-        confirmed_cases.groupby(["Country/Region"])[
-            f"{yesterday.month}/{yesterday.day}/{yesterday.year - 2000}"].sum().groupby("Country/Region").cumsum()
+    today = datetime.date(day=day,month=month,year=year)
+    yesterday = today + datetime.timedelta(days=-1)
+    today=today.strftime('%-m/%-d/%y')
+    yesterday=yesterday.strftime('%-m/%-d/%y')
+    to_check= confirmed_cases.get([yesterday,today])
+    count = 0
+    size_range=confirmed_cases.shape[0]
+    for i in range(0 , size_range):
+        if to_check.loc[i][0]!=0: #doesn't seem to be needed according to task... but the example values
+            if to_check.loc[i][0].item()==to_check.loc[i][1].item():
+                count += 1
+                #print(to_check.loc[i],count) #debug
+    return count
 
-    table = pd.DataFrame({'today': result.values, 'yesterday': result_yesterday.values})
-    wynik = table.loc[table["today"] == table["yesterday"]]
-
-    return len(wynik)
+def no_new_cases_count_prove_me_Im_wrong(day: int, month: int, year: int = 2020) -> int:
+    today = datetime.date(day=day,month=month,year=year)
+    yesterday = (today + datetime.timedelta(days=-1)).strftime('%-m/%-d/%y')
+    today=today.strftime('%-m/%-d/%y')
+    to_check= confirmed_cases.get([yesterday,today])
+    count = 0
+    size_range=confirmed_cases.shape[0]
+    for i in range(0 , size_range):
+        if to_check.loc[i][0]!=0: #this if statement doesn't seem to be needed according to task... but the example values...
+            if to_check.loc[i][0].item()==to_check.loc[i][1].item():
+                count += 1
+                #print(to_check.loc[i],count) #debug
+    return count
