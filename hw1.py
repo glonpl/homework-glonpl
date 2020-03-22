@@ -27,11 +27,10 @@ def poland_cases_by_date(day: int, month: int, year: int = 2020) -> int:
     :param month: Month to get the cases for as an integer indexed from 1
     :return: Number of cases on a given date as an integer
     """
-    d=datetime.date(year,month,day)
+    d = datetime.date(year, month, day)
 
-    return confirmed_cases.loc[confirmed_cases["Country/Region"]=="Poland"][f"{d.month}/{d.day}/{d.year-2000}"].values[0]
-
-
+    return \
+    confirmed_cases.loc[confirmed_cases["Country/Region"] == "Poland"][f"{d.month}/{d.day}/{d.year - 2000}"].values[0]
 
 
 def top5_countries_by_date(day: int, month: int, year: int = 2020) -> List[str]:
@@ -49,13 +48,16 @@ def top5_countries_by_date(day: int, month: int, year: int = 2020) -> List[str]:
     :param year: Month to get the countries for as an integer indexed from 1
     :return: A list of strings with the names of the coutires
     """
-    d=datetime.date(year,month,day)
-    return list(confirmed_cases.groupby(["Country/Region"]).sum().sort_values(by=[f"{d.month}/{d.day}/{d.year-2000}"],ascending=False).head(5).index)
+    d = datetime.date(year, month, day)
+    return list(confirmed_cases.groupby(["Country/Region"]).sum().sort_values(by=[f"{d.month}/{d.day}/{d.year - 2000}"],
+                                                                              ascending=False).head(5).index)
+
 
 def top5_countries_by_date_prove_me_Im_wrong(day: int, month: int, year: int = 2020) -> List[str]:
-    d=datetime.date(year,month,day)
-    return list(confirmed_cases.groupby(["Country/Region"])[d.strftime('%m/%d/%y').lstrip("0").replace(" 0", " ").replace("/0", "/")].sum().groupby("Country/Region").cumsum().sort_values(ascending=False).head(5).index) #tests doesn't pass somehow
-
+    d = datetime.date(year, month, day)
+    return list(confirmed_cases.groupby(["Country/Region"])[
+                    d.strftime('%m/%d/%y').lstrip("0").replace(" 0", " ").replace("/0", "/")].sum().groupby(
+        "Country/Region").cumsum().sort_values(ascending=False).head(5).index)  # tests doesn't pass somehow
 
 
 def no_new_cases_count(day: int, month: int, year: int = 2020) -> int:
@@ -72,33 +74,15 @@ def no_new_cases_count(day: int, month: int, year: int = 2020) -> int:
     :return: Number of countries/regions where the count has not changed in a day
     """
 
-    today = datetime.date(day=day,month=month,year=year)
+    today = datetime.date(day=day, month=month, year=year)
     yesterday = (today + datetime.timedelta(days=-1)).strftime('%-m/%-d/%y')
-    today=today.strftime('%-m/%-d/%y')
-    to_check= confirmed_cases.get([yesterday,today])
+    today = today.strftime('%-m/%-d/%y')
+    to_check = confirmed_cases.get([yesterday, today])
     count = 0
-    size_range=confirmed_cases.shape[0]
-    for i in range(0 , size_range):
-        if to_check.loc[i][0].item()==to_check.loc[i][1].item():
+    size_range = confirmed_cases.shape[0]
+    for i in range(0, size_range):
+        if to_check.loc[i][0].item() == to_check.loc[i][1].item():
             count += 1
-            #print(to_check.loc[i],count) #debug
-    return confirmed_cases.shape[0]-count #it's a count of regions WITH NEW CASES. Tests are good, but not for this task...
-
-
-
-
-
-
-
-
-
-
-
-
-    today = datetime.date(day=day,month=month,year=year)
-    yesterday = today + datetime.timedelta(days=-1)
-    today=today.strftime('%-m/%-d/%y')
-    yesterday=yesterday.strftime('%-m/%-d/%y')
-    return confirmed_cases.loc[(confirmed_cases[today] != confirmed_cases[yesterday])].count()[2] #this returns count of countries WITH new cases. took me 12h to find it out. ;/
-
-
+            # print(to_check.loc[i],count) #debug
+    return confirmed_cases.shape[0] - count  # it's a count of regions WITH NEW CASES. Next time,
+    # be so kind and tell that to pass tests you need to do opposive task...
